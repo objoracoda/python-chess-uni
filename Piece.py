@@ -3,5 +3,6 @@ class Piece:
         self.color = color
         self.symbol = '.'
 
+    # Метод __repr__ в Python выдает текстовое или строковое представление сущности или объекта.
     def __repr__(self):
         return self.symbol

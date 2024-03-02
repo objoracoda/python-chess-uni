@@ -1,7 +1,9 @@
+# Импорт библиотеки для отрисовки букв на поле
 import string
 
+# Импорт класса всех фигур
 import Piece, Pawn, Rook, Knight, Bishop, Queen, King
-# Классы всех фигур, наследующие от Piece параметры цвета и символа
+
 
 class Chessboard:
     def __init__(self):
@@ -47,9 +49,8 @@ class Chessboard:
 
         # Получение возможных ходов для фигуры
         possible_moves = piece.get_possible_moves(self.board, start_row, start_col)
-        #print(possible_moves)
-        # Проверка, является ли конечная позиция одним из возможных ходов
 
+        # Проверка, является ли конечная позиция одним из возможных ходов
         if (end_row, end_col) not in possible_moves:
             return False
 
@@ -61,55 +62,91 @@ class Chessboard:
         piece = self.board[start_row][start_col]
         self.board[end_row][end_col] = piece
         self.board[start_row][start_col] = '.'
+
+        #  Проверка на преварщение в королеву пешки
+        if isinstance(piece,Pawn.Pawn):
+            if end_row == 0:
+                queen_exists = any(isinstance(piece, Queen.Queen) and piece.color == 'white' for row in self.board for piece in row)
+                if not queen_exists:
+                    self.board[end_row][end_col] = Queen.Queen('white')
+
+            if end_row == 7:
+                queen_exists = any(isinstance(piece, Queen.Queen) and piece.color == 'black' for row in self.board for piece in row)
+                if not queen_exists:
+                    self.board[end_row][end_col] = Queen.Queen('black')
+
         self.current_player = 'black' if self.current_player == 'white' else 'white'
 
-# Добавить методы для проверки наличия шаха и мате, а также для других правил
+
+    def check_win(self):
+        # Проверяем наличие короля нужного цвета на доске
+        w,b = False,False
+        for row in range(8):
+            for col in range(8):
+                piece = self.board[row][col]
+                if isinstance(piece, King.King) and piece.color == 'white':
+                    w = True
+                if isinstance(piece, King.King) and piece.color == 'black':
+                    b = True
+        if not w:
+            print('Черные выиграли!')
+            return False
+        if not b:
+            print('Белые выиграли!')
+            return False
+        return True
 
 
-def get_move():
-    while True:
-        move = input("Введите ваш ход (например -> 'a2-a4'): ").strip().lower()
-        if len(move) == 5 and move[0] in 'abcdefgh' and move[1] in '12345678' and \
-           move[2] == '-' and move[3] in 'abcdefgh' and move[4] in '12345678':
-           return move
-        else:
-            print("Не корректный ход. Введите в формате 'a2-a4'.")
+
+class GameLoop:
+    def __init__(self):
+        self.board = Chessboard()
+        
+    def get_move(self):
+        while True:
+            move = input("Введите ваш ход (например -> 'a2-a4'): ").strip().lower()
+            if len(move) == 5 and move[0] in 'abcdefgh' and move[1] in '12345678' and move[2] == '-' and move[3] in 'abcdefgh' and move[4] in '12345678':
+                return move
+            else:
+                print("Не корректный ход. Введите в формате 'a2-a4'.")
 
 
-def main():
-    board = Chessboard()
-    board.print_board()
+    def main(self):
+        #board = Chessboard()
+        self.board.print_board()
 
-    current_turn = True
+        #current_turn = True
 
-    while True:
-        move = get_move()
-        start_pos, end_pos = move.split('-')
-        start_col, start_row = ord(start_pos[0]) - ord('a'), int(start_pos[1]) - 1
-        end_col, end_row = ord(end_pos[0]) - ord('a'), int(end_pos[1]) - 1
+        while True:
+            move = self.get_move()
+            start_pos, end_pos = move.split('-')
+            start_col, start_row = ord(start_pos[0]) - ord('a'), int(start_pos[1]) - 1
+            end_col, end_row = ord(end_pos[0]) - ord('a'), int(end_pos[1]) - 1
 
-        piece = board.board[start_row][start_col]
+            piece = self.board.board[start_row][start_col]
 
-        if piece == '.':
-            print("На этой позиции нет фигуры!")
-            continue
-
-        if not isinstance(piece, Piece.Piece):
-            print("Не верная фигура.")
-            continue
-
-        if piece.color != board.current_player:
-            print("Сейчас не ваш ход.")
-            continue
+            if piece == '.':
+                print("На этой позиции нет фигуры!")
+                continue
 
 
-        if not board.is_valid_move(start_row, start_col, end_row, end_col):
-            print("Не корректный ход.")
-            continue
+            if piece.color != self.board.current_player:
+                print("Сейчас не ваш ход.")
+                continue
 
-        board.move_piece(start_row, start_col, end_row, end_col)
-        board.print_board()
+
+            if not self.board.is_valid_move(start_row, start_col, end_row, end_col):
+                print("Не корректный ход.")
+                continue
+
+
+            self.board.move_piece(start_row, start_col, end_row, end_col)
+            self.board.print_board()
+
+            if self.board.check_win() == False:
+                break
 
 
 if __name__ == "__main__":
-    main()
+    game = GameLoop()
+    game.main()
