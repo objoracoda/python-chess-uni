@@ -4,6 +4,7 @@ class Rook(Piece.Piece):
     def __init__(self, color):
         super().__init__(color)
         self.symbol = '♜' if color == 'black' else '♖'
+        self.has_moved = False
 
 
     def get_possible_moves(self, board, row, col):

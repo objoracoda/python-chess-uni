@@ -5,7 +5,7 @@ class Knight(Piece.Piece):
         super().__init__(color)
         self.symbol = '♞' if color == 'black' else '♘'
 
-
+    # Найти возможные ходы
     def get_possible_moves(self, board, row, col):
         possible_moves = []
 
@@ -17,10 +17,10 @@ class Knight(Piece.Piece):
             (row + 2, col - 1), (row + 2, col + 1)
         ]
 
-        # Проверяем каждый возможный ход
+        # Проверяем каждый возможный ход 
         for r, c in moves:
             # Проверяем, находится ли ход в пределах доски и свободен ли он
-            if 0 <= r < 8 and 0 <= c < 8 and (board[r][c] == '.' or board[r][c].color != self.color):
+            if (0 <= r <= 7) and (0 <= c <= 7) and (board[r][c] == '.' or board[r][c].color != self.color):
                 possible_moves.append((r, c))
 
         return possible_moves
